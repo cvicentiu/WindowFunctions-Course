@@ -27,37 +27,61 @@ docker exec -it mariadb_database mariadb employees
 
 # Problems to solve:
 
-1.
-Given the employees dataset, identify the top 1% of earners that are currently
-employed. A currently employed employee has the 'to_date' column corresponding to their
-salary set to 9999-01-01.
+1. Given the employees dataset, identify the top 1% of earners that are
+   currently employed. A currently employed employee has the `to_date` column
+   corresponding to their salary set to `9999-01-01`.
 
-The result should have the following table header and it should be sorted by salary desc:
-Employee Number, First Name, Last Name, Current Salary
+   The result should have the following table header and it should be sorted by
+   `salary` descending:
 
-2.
-Same task as problem #1, however group by departments and get the top 1% per each department.
+   `Employee Number, First Name, Last Name, Current Salary`
 
-The result should have the following table header and it should be sorted by salary desc:
-Employee Number, First Name, Last Name, Current Salary, Department Name
+   Hint: [NTILE](https://mariadb.com/kb/en/ntile/)
 
-3.
-Same task as problem #2, however only get the top 5 earners per each department.
+2. Same task as problem #1, however group by departments and get the top 1% per
+   each department.
 
-The result should have the following table header and it should be sorted by salary desc:
-Employee Number, First Name, Last Name, Current Salary, Department Name
+   The result should have the following table header and it
+   should be sorted by `salary` descending:
 
-4.
-Identify the largest absolute raise in the company. A raise is defined as
-the difference between two salary entries such that:
-entry1.emp_no = entry2.emp_no and entry1.to_date = entry2.from_date
+   `Employee Number, First Name, Last Name, Current Salary, Department Name`
 
-Do this without the use of window functions.
+   Hint: [PARTITION BY clause](https://mariadb.com/kb/en/window-functions-overview/#syntax)
 
-5.
-Identify the largest absolute raise in the company. A raise is defined as
-the difference between two salary entries such that:
-entry1.emp_no = entry2.emp_no and entry1.to_date = entry2.from_date
+3. Same task as problem #2, however only get the top 5 earners per each
+   department.
 
-# Solutions
-Solutions are attached in sql
+   The result should have the following table header and it should be sorted by
+   `salary` descending:
+
+   `Employee Number, First Name, Last Name, Current Salary, Department Name`
+
+   Hint: [RANK](https://mariadb.com/kb/en/rank/)
+
+4. Identify the largest absolute raise in the company. A raise is defined as
+   the difference between two salary entries such that:
+
+   `entry1.emp_no = entry2.emp_no and entry1.to_date = entry2.from_date`.
+
+   The result should have the following table header:
+
+   `Employee Number, First Name, Last Name, Maximum Raise`
+
+   Do this without the use of window functions.
+
+   Hint: A table self-join is necessary.
+
+5. Same as problem #4.
+
+   Use the [LAG](https://mariadb.com/kb/en/lag/) window function to solve this
+   problem.
+
+   Compare the performance difference between #4 and #5. Which one is faster?
+   Why?
+
+## Solutions:
+* [Problem 1](problem1.sql)
+* [Problem 2](problem2.sql)
+* [Problem 3](problem3.sql)
+* [Problem 4](problem4.sql)
+* [Problem 5](problem5.sql)
