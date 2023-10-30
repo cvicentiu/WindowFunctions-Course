@@ -48,6 +48,18 @@ FROM (
 WHERE engineers.salary > 1000
 ```
 
+## CTE Execution
+Now that we understand what a CTE is, it's time to look at how the database computes queries that use CTEs.
+
+Without considering any query optimizations, conceptually, the database creates a table entry for each CTE. When the query starts, the database goes through the following steps:
+1. Identifies the first CTE declaration and its body.
+2. Executes the `SELECT` statement from the CTE body.
+3. Stores the result of the CTE body's `SELECT` into a temporary table for the duration of the main query.
+4. Identify the second CTE declaration and repeat from step one for the second CTE.
+5. Once all CTE references are computed, the database proceeds to execute the main query.
+
+An astute reader may observe the potential for optimizations within CTEs. There are different strategies the query optimizer can employ, but we'll look at these after examining more complex CTE examples.
+
 ## Advantages of CTEs in Complex Queries
 ### Enhanced Readability
 Complex SQL queries with multiple nested subqueries can be challenging to interpret as they often require starting from the innermost subqueries and working outwards. This becomes more convoluted with deeper nesting. CTEs, by contrast, offer a more linear and readable structure. Consider the following comparisons:
