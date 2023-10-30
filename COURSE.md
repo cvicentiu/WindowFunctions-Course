@@ -48,18 +48,6 @@ FROM (
 WHERE engineers.salary > 1000
 ```
 
-## CTE Execution
-Now that we understand what a CTE is, it's time to look at how the database computes queries that use CTEs.
-
-Without considering any query optimizations, conceptually, the database creates a table entry for each CTE. When the query starts, the database goes through the following steps:
-1. Identifies the first CTE declaration and its body.
-2. Executes the `SELECT` statement from the CTE body.
-3. Stores the result of the CTE body's `SELECT` into a temporary table for the duration of the main query.
-4. Identify the second CTE declaration and repeat from step one for the second CTE.
-5. Once all CTE references are computed, the database proceeds to execute the main query.
-
-An astute reader may observe the potential for optimizations within CTEs. There are different strategies the query optimizer can employ, but we'll look at these after examining more complex CTE examples.
-
 ## Advantages of CTEs in Complex Queries
 ### Enhanced Readability
 Complex SQL queries with multiple nested subqueries can be challenging to interpret as they often require starting from the innermost subqueries and working outwards. This becomes more convoluted with deeper nesting. CTEs, by contrast, offer a more linear and readable structure. Consider the following comparisons:
@@ -186,3 +174,21 @@ ORDER BY
 ```
 
 The query using a CTE only has to the define the sales_product_year table once. This also has other benefits, in that the Query Optimizer can now properly see the intent of the programmer: self-join two identical tables. This opens up optimization possibilities such as CTE reuse, which we'll cover in a follow-up chapter.
+
+## CTE Execution
+Now that we understand what a CTE is and what it's useful for, it's time to look at how the database computes queries that use CTEs.
+
+Without considering any query optimizations, conceptually, the database creates a table entry for each CTE reference. When the query starts, the database goes through the following steps:
+1. Identifies the first CTE declaration and its body.
+2. Executes the `SELECT` statement from the CTE body.
+3. Stores the result of the CTE body's `SELECT` into a temporary table for the duration of the main query.
+4. Identify the second CTE declaration and repeat from step one for the second CTE.
+5. Once all CTE references are computed, the database proceeds to execute the main query.
+
+An astute reader may observe the potential for optimizations within CTEs. There are different strategies the query optimizer can employ, which is what we'll cover next:
+
+## CTE Optimizations
+
+1. Optimize away unused tables
+2. Reuse CTEs temporary tables if they are referenced more than once.
+3. Push conditions down into CTEs to store less data.
