@@ -172,3 +172,5 @@ WHERE
 ORDER BY
     CUR.product, CUR.sale_year
 ```
+
+The query using a CTE only has to the define the sales_product_year table once. This also has other benefits, in that the Query Optimizer can now properly see the intent of the programmer: self-join two identical tables. This opens up optimization possibilities such as CTE reuse, which we'll cover in a follow-up chapter.
