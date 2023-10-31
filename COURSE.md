@@ -48,6 +48,7 @@ FROM (
 WHERE engineers.salary > 1000
 ```
 
+
 ## Advantages of CTEs in Complex Queries
 ### Enhanced Readability
 Complex SQL queries with multiple nested subqueries can be challenging to interpret as they often require starting from the innermost subqueries and working outwards. This becomes more convoluted with deeper nesting. CTEs, by contrast, offer a more linear and readable structure. Consider the following comparisons:
@@ -173,22 +174,40 @@ ORDER BY
     CUR.product, CUR.sale_year
 ```
 
-The query using a CTE only has to the define the sales_product_year table once. This also has other benefits, in that the Query Optimizer can now properly see the intent of the programmer: self-join two identical tables. This opens up optimization possibilities such as CTE reuse, which we'll cover in a follow-up chapter.
+The query using a CTE only has to define the sales_product_year table once. This also has other benefits, in that the Query Optimizer can now properly see the intent of the programmer: self-join two identical tables. This opens up optimization possibilities such as CTE reuse, which we'll cover in a follow-up chapter.
 
 ## CTE Execution
 Now that we understand what a CTE is and what it's useful for, it's time to look at how the database computes queries that use CTEs.
 
-Without considering any query optimizations, conceptually, the database creates a table entry for each CTE reference. When the query starts, the database goes through the following steps:
-1. Identifies the first CTE declaration and its body.
-2. Executes the `SELECT` statement from the CTE body.
-3. Stores the result of the CTE body's `SELECT` into a temporary table for the duration of the main query.
-4. Identify the second CTE declaration and repeat from step one for the second CTE.
-5. Once all CTE references are computed, the database proceeds to execute the main query.
+Without considering any query optimizations, conceptually, the database creates a temporary table for each CTE reference. When the query starts, the database goes through the following steps:
+1. Identifies all CTE declarations.
+2. Identifies all references of CTEs within the query.
+3. For each CTE referenced within the query, the database computes the results of its CTE body select. Note that this works when CTEs reference other CTEs. The database starts with the CTEs that have no other CTEs references first.
 
-An astute reader may observe the potential for optimizations within CTEs. There are different strategies the query optimizer can employ, which is what we'll cover next:
+When writing queries, you can rely on this cp,[itatopm model as it is generally valid. However, an astute reader may observe the potential for plenty of optimizations. There are different strategies the query optimizer can employ, which is what we'll cover next:
 
 ## CTE Optimizations
 
-1. Optimize away unused tables
-2. Reuse CTEs temporary tables if they are referenced more than once.
-3. Push conditions down into CTEs to store less data.
+### CTE reuse
+
+The computation model presented above means that if a CTE is referenced multiple times, it has to be computed multiple times. This is obviously inneficient if we can reuse the data.
+
+The following figure shows the "naive" execution compared to reusing CTEs.
+
+![CTE Reuse](./img/CTE-Reuse.png)
+With the naive execution plan, the green (cte1 a) and yellow (cte1 b) are identical and get computed twice. The alternative execution plan only computes cte1 once, then the two references use the same storage to execute the query.
+
+**Advantages**
+* Easy to implement within the database engine
+* Computation work is not duplicated.
+* Can speed up query execution
+**Disadvantages**
+* Chosing CTE reuse as an optimization prevents other optimizations.
+* Often there are better strategies to reduce the amount of rows that need to be computed.
+
+### CTE table merging
+The main focus of CTEs is on query readability. However from an execution standpoint, queries using CTEs are not necessarily the fastest possible written queries. The query optimizer tries to rewrite the original query into a form that reduces the amount of work required to execute.
+
+Removing the need for temporary tables in the first place is key. We achieve this through query rewriting. Practically, what the optimizer can do is combine the CTE body directly within the base query. For example:
+
+Let's say we we have an employee table. We create a CTE only with engineers and then we do some filtering in the main query.
