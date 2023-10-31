@@ -3,10 +3,11 @@
 ## What is a Common Table Expression?
 > A Common Table Expression (CTE) is a modern SQL feature used to define a
 > temporary result set. Conceptually CTEs can also be considered query-level views or
-> query-level temporary tables, allowing you to define a transient set of reesults that
+> query-level temporary tables, allowing you to define a transient set of results that
 > can be used within a larger query.
 >
 > CTEs primarily serve to simplify complex SQL queries. They can effectively replace nested subqueries, enhancing redability and often improving performance by enabling special CTE specific optimizations for the database's query optimizer.
+
 
 ## Understanding CTE basic syntax
 A Common Table Expression starts with the keyword `WITH`, then followed by the CTE name, then `AS`. Following `AS` we have the CTE definition or **CTE Body**.
@@ -201,11 +202,23 @@ With the naive execution plan, the green (cte1 a) and yellow (cte1 b) are identi
 * Easy to implement within the database engine
 * Computation work is not duplicated.
 * Can speed up query execution
+
 **Disadvantages**
 * Chosing CTE reuse as an optimization prevents other optimizations.
 * Often there are better strategies to reduce the amount of rows that need to be computed.
 
-### CTE table merging
+### CTE merging
+CTEs are very similar to subqueries behind the scenes. A subquery is used to define a query level temporary table, also called a DERIVED TABLE. For certain queries, the optimizer is able to rewrite them by *merging* where clauses together to allow for more filtering conditions to apply sooner. The same rules apply to CTEs as well.
+
+The following figure shows the transformation that the optimizer will do:
+
+
+
+This optimization is called CTE Merging
+
+The optimizer knows to optimize derived tables by rewriting conditions whenever possible.
+
+Derived table merging is a c
 The main focus of CTEs is on query readability. However from an execution standpoint, queries using CTEs are not necessarily the fastest possible written queries. The query optimizer tries to rewrite the original query into a form that reduces the amount of work required to execute.
 
 Removing the need for temporary tables in the first place is key. We achieve this through query rewriting. Practically, what the optimizer can do is combine the CTE body directly within the base query. For example:
