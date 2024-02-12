@@ -304,3 +304,20 @@ frame_border:
   | expression PRECEDING
   | expression PRECEDING
 ```
+
+Let's go through the syntax, one step at a time:
+1. The `OVER ()` clause is the bare minimum required to define a window function. This tells the SQL engine that this function will produce one result per row, but that its values will be computed over potentially many different rows. If the used function was traditionally a regular aggregate function, such as `SUM` or `COUNT`, it will now behave as a window function. It will not collapse group rows into a single result.
+2. Inside the `OVER` clause one can add modifiers that impact what rows will be used to compute the window function's result. The rows used to compute a window function result are part of the "window frame". The modifiers affect the rows that are part of the "window frame". They are: `PARTITION BY` and `ORDER BY`. We'll go into more concrete examples for each.
+3. Finally, one can specify how big the window frame is, in relation to the current row we are computing the window function result for. This is done via the `frame_clause` part of the grammar.
+
+### Dedicated window function use case row_number()
+
+### Aggregate functions as window functions
+
+### Different frame clauses
+
+#### ROWS vs RANGE
+
+### Where can window functions be used
+
+#### How to combine window functions with CTEs
