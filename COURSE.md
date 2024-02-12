@@ -310,7 +310,53 @@ Let's go through the syntax, one step at a time:
 2. Inside the `OVER` clause one can add modifiers that impact what rows will be used to compute the window function's result. The rows used to compute a window function result are part of the "window frame". The modifiers affect the rows that are part of the "window frame". They are: `PARTITION BY` and `ORDER BY`. We'll go into more concrete examples for each.
 3. Finally, one can specify how big the window frame is, in relation to the current row we are computing the window function result for. This is done via the `frame_clause` part of the grammar.
 
-### Dedicated window function use case row_number()
+### Dedicated window function use case, row_number()
+The best way to understand window functions is to see them in action. We'll start with a dedicated window function, `row_number()`. That means that this function can not be used without the OVER clause (unlike some other SQL functions). We'll also be able to see how PARTITION BY and ORDER BY affect the result.
+
+First, we'll use `row_number()` without any extra arguments in the `OVER` clause.
+For this example, we'll be using the ["employees"](employees|https://github.com/datacharmer/test_db) dataset.
+Here is the definition of the table we'll be using:
+
+```sql
+ MariaDB [employees]> describe employees;
++------------+---------------+------+-----+---------+-------+
+| Field      | Type          | Null | Key | Default | Extra |
++------------+---------------+------+-----+---------+-------+
+| emp_no     | int(11)       | NO   | PRI | NULL    |       |
+| birth_date | date          | NO   |     | NULL    |       |
+| first_name | varchar(14)   | NO   |     | NULL    |       |
+| last_name  | varchar(16)   | NO   |     | NULL    |       |
+| gender     | enum('M','F') | NO   |     | NULL    |       |
+| hire_date  | date          | NO   |     | NULL    |       |
++------------+---------------+------+-----+---------+-------+
+6 rows in set (0.000 sec)
+```
+
+Let's first get the youngest 10 employees.
+```sql
+MariaDB [employees]>
+SELECT first_name, last_name, hire_date, birth_date
+FROM employees
+ORDER BY birth_date desc
+LIMIT 10;
+
++------------+-----------------+------------+------------+
+| first_name | last_name       | hire_date  | birth_date |
++------------+-----------------+------------+------------+
+| Surveyors  | Bade            | 1988-05-01 | 1965-02-01 |
+| Magdalena  | Penn            | 1987-04-27 | 1965-02-01 |
+| Berni      | Stranks         | 1985-11-05 | 1965-02-01 |
+| Jaewon     | Thummel         | 1985-09-14 | 1965-02-01 |
+| Koldo      | Luit            | 1993-11-19 | 1965-02-01 |
+| Hiroyasu   | Provine         | 1994-11-25 | 1965-02-01 |
+| Zsolt      | Riefers         | 1987-09-25 | 1965-02-01 |
+| Adamantios | Vanwelkenhuysen | 1987-12-12 | 1965-02-01 |
+| Deniz      | Thibadeau       | 1986-03-11 | 1965-02-01 |
+| Mario      | Cochrane        | 1985-03-30 | 1965-02-01 |
++------------+-----------------+------------+------------+
+```
+
+Now our first task, let's create an increasing sequence ID for these employees.
 
 ### Aggregate functions as window functions
 
