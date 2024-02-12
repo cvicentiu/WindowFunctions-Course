@@ -548,7 +548,7 @@ MariaDB [employees]>
 +---------+------------+------------+------------+------------+--------+
 ```
 
-And now we can clearly see how PARTITION BY interacts with the result set.
+And now we can clearly see how PARTITION BY interacts with the result set. We have two separate sequences, one for each different partition of `M` and `F` gender.
 
 
 ### Aggregate functions as window functions
