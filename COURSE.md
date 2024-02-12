@@ -185,7 +185,7 @@ Without considering any query optimizations, conceptually, the database creates 
 2. Identifies all references of CTEs within the query.
 3. For each CTE referenced within the query, the database computes the results of its CTE body select. Note that this works when CTEs reference other CTEs. The database starts with the CTEs that have no other CTEs references first.
 
-When writing queries, you can rely on this cp,[itatopm model as it is generally valid. However, an astute reader may observe the potential for plenty of optimizations. There are different strategies the query optimizer can employ, which is what we'll cover next:
+When writing queries, you can rely on this computation model as it is generally valid. However, an astute reader may observe the potential for plenty of optimizations. There are different strategies the query optimizer can employ, which is what we'll cover next:
 
 ## CTE Optimizations
 
@@ -217,6 +217,48 @@ The following figure shows the transformation that the optimizer will do:
 This optimization is called CTE Merging
 
 The optimizer knows to optimize derived tables by rewriting conditions whenever possible.
+
+### CTE condition pushdown
+There are cases when CTE merging is not possible, because it would change the end outcome of the query. Here is an example:
+```
+WITH sales_per_year AS (
+  SELECT
+    year(order.date) AS year
+    sum(order.amount) AS sales
+  FROM
+    order
+  GROUP BY  -- !!! Group by is present in the CTE !!!
+    year
+)
+SELECT * 
+FROM sales_per_year 
+WHERE 
+  year in ('2015','2016')
+```
+
+In the general case, any GROUP BY clause in a CTE prevents direct merging. However there is still a way to optimize the query by identifying any filtering clauses refering to the GROUP BY expression. The key here is the filtering condition:
+```
+WHERE
+  year in ('2015', '2016')
+```
+Instead of computing all groups in the CTE, storing them in a temporary table and only then identifying the groups `2015` and `2016`, one can begin filtering the `order` table directly.
+The resulting query, as executed by the optimizer is:
+```
+WITH sales_per_year AS (
+  SELECT
+    year(order.date) AS year
+    sum(order.amount) AS sales
+  FROM
+    order
+  where order.year in ('2015', '2016')
+  GROUP BY  -- !!! Group by is present in the CTE !!!
+    year
+)
+SELECT * 
+FROM sales_per_year 
+```
+
+
 
 Derived table merging is a c
 The main focus of CTEs is on query readability. However from an execution standpoint, queries using CTEs are not necessarily the fastest possible written queries. The query optimizer tries to rewrite the original query into a form that reduces the amount of work required to execute.
