@@ -521,7 +521,7 @@ MariaDB [employees]>
 ```
 
 Now this is a bit hard to read. For readability, we can wrap this query in a CTE, then order by gender and row_num.
-```
+```sql
 MariaDB [employees]>
   WITH emp_row_num as (
     SELECT
@@ -532,6 +532,20 @@ MariaDB [employees]>
   SELECT *
   FROM emp_row_num
   ORDER BY gender, row_num;
++---------+------------+------------+------------+------------+--------+
+| row_num | first_name | last_name  | hire_date  | birth_date | gender |
++---------+------------+------------+------------+------------+--------+
+|       1 | Bikash     | Covnot     | 2000-01-28 | 1964-06-12 | M      |
+|       2 | Yucai      | Gerlach    | 2000-01-23 | 1957-05-09 | M      |
+|       3 | Ulf        | Flexer     | 2000-01-12 | 1960-09-09 | M      |
+|       4 | Shahab     | Demeyer    | 2000-01-08 | 1954-11-17 | M      |
+|       5 | Jeong      | Boreale    | 2000-01-03 | 1953-04-27 | M      |
+|       1 | Hideyuki   | Delgrande  | 2000-01-22 | 1954-05-06 | F      |
+|       2 | Volkmar    | Perko      | 2000-01-13 | 1959-08-07 | F      |
+|       3 | Jaana      | Verspoor   | 2000-01-11 | 1953-04-09 | F      |
+|       4 | Ennio      | Alblas     | 2000-01-06 | 1960-09-12 | F      |
+|       5 | Xuejun     | Benzmuller | 2000-01-04 | 1958-06-10 | F      |
++---------+------------+------------+------------+------------+--------+
 ```
 
 And now we can clearly see how PARTITION BY interacts with the result set.
