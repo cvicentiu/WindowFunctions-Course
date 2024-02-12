@@ -260,12 +260,26 @@ FROM sales_per_year
 ```
 
 ## Recursive CTEs
-The previous chapters dealt with the execution of regular CTEs, as well as optimization techniques used by the database.
+The previous chapters dealt with the execution of regular CTEs. Now it is time to introduce a more advanced concept for CTEs, *recursion*. With recursive CTEs, one can define complex semantics to compute almost anything. The most common use case however is graph traversal. Let's start with the basic syntax:
 
+```sql
+WITH RECURSIVE <cte-name> as (
+  <base-select>
+  union
+  <recursive-select>
+)
+```
 
-Derived table merging is a c
-The main focus of CTEs is on query readability. However from an execution standpoint, queries using CTEs are not necessarily the fastest possible written queries. The query optimizer tries to rewrite the original query into a form that reduces the amount of work required to execute.
+You will notice the extra `RECURSIVE` keyword. A recursive CTE is split into a union of two clauses, a "base" case, defining the initial dataset, then a recursive generator. The recursive generator will execute for as long as new rows can be generated based on the results of the previous iteration. This is harder to explain in plain text, so the following animation will show how a CTE is constructed. 
 
-Removing the need for temporary tables in the first place is key. We achieve this through query rewriting. Practically, what the optimizer can do is combine the CTE body directly within the base query. For example:
+TODO: video
 
-Let's say we we have an employee table. We create a CTE only with engineers and then we do some filtering in the main query.
+This covers all the topics related to Common Table Expressions. Next we will dive into another advanced SQL feature, that works well in conjuction with what we've learned so far.
+
+## Window Functions
+Window functions are a special kind of SQL function. Window functions can be used in regular SELECT queries and they have the following two particularities:
+1. They behave as regular SQL functions, they return one result per row.
+2. They behave also like aggregate functions such as `MIN`, `MAX`, `AVG`. The result of window functions is computed over multiple rows. In fact, most aggregate functions can be used as window functions too!
+
+### Syntax
+
