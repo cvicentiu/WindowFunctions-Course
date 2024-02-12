@@ -178,7 +178,7 @@ ORDER BY
 The query using a CTE only has to define the sales_product_year table once. This also has other benefits, in that the Query Optimizer can now properly see the intent of the programmer: self-join two identical tables. This opens up optimization possibilities such as CTE reuse, which we'll cover in a follow-up chapter.
 
 ## CTE Execution
-Now that we understand what a CTE is and what it's useful for, it's time to look at how the database computes queries that use CTEs.
+Now that we understand what a CTE is and what it's useful for, it's time to look at how the database computes queries that use CTEs. While the next chapter is not essential for making use of CTEs, understanding what optimizations the database engine can do will help you write better performing queries.  
 
 Without considering any query optimizations, conceptually, the database creates a temporary table for each CTE reference. When the query starts, the database goes through the following steps:
 1. Identifies all CTE declarations.
@@ -212,11 +212,11 @@ CTEs are very similar to subqueries behind the scenes. A subquery is used to def
 
 The following figure shows the transformation that the optimizer will do:
 
-
+![CTE Merging](./img/CTE-Merging.png)
 
 This optimization is called CTE Merging
 
-The optimizer knows to optimize derived tables by rewriting conditions whenever possible.
+The optimizer knows to optimize derived tables by rewriting the query whenever possible. By doing merging, the following optimization steps have a more straightforward view of the query. This allows the JOIN optimizer (the optimization step deciding on the JOIN order of tables) to make a better cost-based decision. In almost all cases, CTE merging provides a performance speedup, hence the optimizer in MariaDB will always attempt to do merging before any other optimization steps. 
 
 ### CTE condition pushdown
 There are cases when CTE merging is not possible, because it would change the end outcome of the query. Here is an example:
@@ -259,6 +259,8 @@ SELECT *
 FROM sales_per_year 
 ```
 
+## Recursive CTEs
+The previous chapters dealt with the execution of regular CTEs, as well as optimization techniques used by the database.
 
 
 Derived table merging is a c
