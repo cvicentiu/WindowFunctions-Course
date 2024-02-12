@@ -283,3 +283,24 @@ Window functions are a special kind of SQL function. Window functions can be use
 
 ### Syntax
 
+```yaml
+<function-name>(<expression>) OVER (
+  [PARTITION BY <expression_list>]
+  [ORDER BY <order_list> [frame_clause]])
+
+expression_list:
+  {expression | column_name} [, expression_list]
+
+order_list:
+  {expression | column_name} [ASC | DESC] [, order_list]
+
+frame_clause:
+  { ROWS | RANGE } {frame_border | BETWEEN frame_border AND frame_border}
+
+frame_border:
+    UNBOUNDED PRECEDING
+  | UNBOUNDED FOLLOWING
+  | CURRENT ROW
+  | expression PRECEDING
+  | expression PRECEDING
+```
