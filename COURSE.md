@@ -464,6 +464,78 @@ LIMIT 10;
 +---------+------------+------------+------------+------------+
 ```
 
+And now we have a continuously increasing number.
+
+#### PARTITIONING rows for window functions
+
+Let's expand our employees query a bit and also use the `gender` column.
+
+```sql
+MariaDB [employees]>
+  SELECT
+    row_number () over (order by e.hire_date desc) as row_num,
+    e.first_name, e.last_name, e.hire_date, e.birth_date, e.gender
+  FROM employees e
+  ORDER BY e.hire_date desc limit 10;
++---------+------------+------------+------------+------------+--------+
+| row_num | first_name | last_name  | hire_date  | birth_date | gender |
++---------+------------+------------+------------+------------+--------+
+|       1 | Bikash     | Covnot     | 2000-01-28 | 1964-06-12 | M      |
+|       2 | Yucai      | Gerlach    | 2000-01-23 | 1957-05-09 | M      |
+|       3 | Hideyuki   | Delgrande  | 2000-01-22 | 1954-05-06 | F      |
+|       4 | Volkmar    | Perko      | 2000-01-13 | 1959-08-07 | F      |
+|       5 | Ulf        | Flexer     | 2000-01-12 | 1960-09-09 | M      |
+|       6 | Jaana      | Verspoor   | 2000-01-11 | 1953-04-09 | F      |
+|       7 | Shahab     | Demeyer    | 2000-01-08 | 1954-11-17 | M      |
+|       8 | Ennio      | Alblas     | 2000-01-06 | 1960-09-12 | F      |
+|       9 | Xuejun     | Benzmuller | 2000-01-04 | 1958-06-10 | F      |
+|      10 | Jeong      | Boreale    | 2000-01-03 | 1953-04-27 | M      |
++---------+------------+------------+------------+------------+--------+
+```
+
+What if we wanted more than one sequence, one for `M` gender, one for `F` gender and one for when when gender is unspecified?
+
+This is where PARTITION BY comes in. If we use `PARTITION BY` inside the `OVER` clause, we create a separate sequence for each different gender. This is very simillar to how `GROUP BY` works in a normal setting.
+
+```sql
+MariaDB [employees]>
+  SELECT
+    row_number () over (partition by e.gender order by e.hire_date desc) as row_num,
+    e.first_name, e.last_name, e.hire_date, e.birth_date, e.gender
+  FROM employees e
+  ORDER BY e.hire_date desc limit 10;
++---------+------------+------------+------------+------------+--------+
+| row_num | first_name | last_name  | hire_date  | birth_date | gender |
++---------+------------+------------+------------+------------+--------+
+|       1 | Bikash     | Covnot     | 2000-01-28 | 1964-06-12 | M      |
+|       2 | Yucai      | Gerlach    | 2000-01-23 | 1957-05-09 | M      |
+|       1 | Hideyuki   | Delgrande  | 2000-01-22 | 1954-05-06 | F      |
+|       2 | Volkmar    | Perko      | 2000-01-13 | 1959-08-07 | F      |
+|       3 | Ulf        | Flexer     | 2000-01-12 | 1960-09-09 | M      |
+|       3 | Jaana      | Verspoor   | 2000-01-11 | 1953-04-09 | F      |
+|       4 | Shahab     | Demeyer    | 2000-01-08 | 1954-11-17 | M      |
+|       4 | Ennio      | Alblas     | 2000-01-06 | 1960-09-12 | F      |
+|       5 | Xuejun     | Benzmuller | 2000-01-04 | 1958-06-10 | F      |
+|       5 | Jeong      | Boreale    | 2000-01-03 | 1953-04-27 | M      |
++---------+------------+------------+------------+------------+--------+
+```
+
+Now this is a bit hard to read. For readability, we can wrap this query in a CTE, then order by gender and row_num.
+```
+MariaDB [employees]>
+  WITH emp_row_num as (
+    SELECT
+      row_number () over (partition by e.gender order by e.hire_date desc) as row_num,
+      e.first_name, e.last_name, e.hire_date, e.birth_date, e.gender
+    FROM employees e
+    ORDER BY e.hire_date desc limit 10)
+  SELECT *
+  FROM emp_row_num
+  ORDER BY gender, row_num;
+```
+
+And now we can clearly see how PARTITION BY interacts with the result set.
+
 
 ### Aggregate functions as window functions
 
