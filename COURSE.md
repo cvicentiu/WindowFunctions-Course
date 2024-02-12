@@ -356,7 +356,31 @@ LIMIT 10;
 +------------+-----------------+------------+------------+
 ```
 
-Now our first task, let's create an increasing sequence ID for these employees.
+Now our first task, let's create an increasing sequence ID for these employees. Let's try row_number() without any arguments in the OVER clause.
+```sql
+MariaDB [employees]>
+SELECT row_number() over (), first_name, last_name, hire_date, birth_date
+FROM employees
+ORDER BY birth_date DESC
+LIMIT 10;
++----------------------+------------+-----------------+------------+------------+
+| row_number() over () | first_name | last_name       | hire_date  | birth_date |
++----------------------+------------+-----------------+------------+------------+
+|                50091 | Surveyors  | Bade            | 1988-05-01 | 1965-02-01 |
+|                83278 | Magdalena  | Penn            | 1987-04-27 | 1965-02-01 |
+|                27592 | Berni      | Stranks         | 1985-11-05 | 1965-02-01 |
+|                76422 | Jaewon     | Thummel         | 1985-09-14 | 1965-02-01 |
+|                70850 | Koldo      | Luit            | 1993-11-19 | 1965-02-01 |
+|                64344 | Hiroyasu   | Provine         | 1994-11-25 | 1965-02-01 |
+|                49869 | Zsolt      | Riefers         | 1987-09-25 | 1965-02-01 |
+|                23293 | Adamantios | Vanwelkenhuysen | 1987-12-12 | 1965-02-01 |
+|                56702 | Deniz      | Thibadeau       | 1986-03-11 | 1965-02-01 |
+|                 1157 | Mario      | Cochrane        | 1985-03-30 | 1965-02-01 |
++----------------------+------------+-----------------+------------+------------+
+```
+
+Well... this is not quite what we might expect. But the results are correct. `row_number` always returns an increasing number, however the window function actually executes on the whole table, before the `LIMIT` clause is applied. What we're seeing here is simply the random order that the database executed our query. To get more meaningful results, we need to tell `row_number` what is the order of rows in which its window frame should see the results.
+
 
 ### Aggregate functions as window functions
 
