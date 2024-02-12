@@ -250,8 +250,9 @@ WITH sales_per_year AS (
     sum(order.amount) AS sales
   FROM
     order
-  where order.year in ('2015', '2016')
-  GROUP BY  -- !!! Group by is present in the CTE !!!
+  WHERE  -- Where clause is now added to the CTE
+    order.year in ('2015', '2016')
+  GROUP BY  
     year
 )
 SELECT * 
