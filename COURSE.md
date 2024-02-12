@@ -220,7 +220,7 @@ The optimizer knows to optimize derived tables by rewriting conditions whenever 
 
 ### CTE condition pushdown
 There are cases when CTE merging is not possible, because it would change the end outcome of the query. Here is an example:
-```
+```sql
 WITH sales_per_year AS (
   SELECT
     year(order.date) AS year
@@ -237,13 +237,13 @@ WHERE
 ```
 
 In the general case, any GROUP BY clause in a CTE prevents direct merging. However there is still a way to optimize the query by identifying any filtering clauses refering to the GROUP BY expression. The key here is the filtering condition:
-```
+```sql
 WHERE
   year in ('2015', '2016')
 ```
 Instead of computing all groups in the CTE, storing them in a temporary table and only then identifying the groups `2015` and `2016`, one can begin filtering the `order` table directly.
 The resulting query, as executed by the optimizer is:
-```
+```sql
 WITH sales_per_year AS (
   SELECT
     year(order.date) AS year
