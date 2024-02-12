@@ -332,7 +332,7 @@ Here is the definition of the table we'll be using:
 6 rows in set (0.000 sec)
 ```
 
-Let's first get the youngest 10 employees.
+Let's first get the 10 most recently hired employees.
 ```sql
 MariaDB [employees]>
 SELECT first_name, last_name, hire_date, birth_date
@@ -340,46 +340,129 @@ FROM employees
 ORDER BY birth_date desc
 LIMIT 10;
 
-+------------+-----------------+------------+------------+
-| first_name | last_name       | hire_date  | birth_date |
-+------------+-----------------+------------+------------+
-| Surveyors  | Bade            | 1988-05-01 | 1965-02-01 |
-| Magdalena  | Penn            | 1987-04-27 | 1965-02-01 |
-| Berni      | Stranks         | 1985-11-05 | 1965-02-01 |
-| Jaewon     | Thummel         | 1985-09-14 | 1965-02-01 |
-| Koldo      | Luit            | 1993-11-19 | 1965-02-01 |
-| Hiroyasu   | Provine         | 1994-11-25 | 1965-02-01 |
-| Zsolt      | Riefers         | 1987-09-25 | 1965-02-01 |
-| Adamantios | Vanwelkenhuysen | 1987-12-12 | 1965-02-01 |
-| Deniz      | Thibadeau       | 1986-03-11 | 1965-02-01 |
-| Mario      | Cochrane        | 1985-03-30 | 1965-02-01 |
-+------------+-----------------+------------+------------+
++------------+------------+------------+------------+
+| first_name | last_name  | hire_date  | birth_date |
++------------+------------+------------+------------+
+| Bikash     | Covnot     | 2000-01-28 | 1964-06-12 |
+| Yucai      | Gerlach    | 2000-01-23 | 1957-05-09 |
+| Hideyuki   | Delgrande  | 2000-01-22 | 1954-05-06 |
+| Volkmar    | Perko      | 2000-01-13 | 1959-08-07 |
+| Ulf        | Flexer     | 2000-01-12 | 1960-09-09 |
+| Jaana      | Verspoor   | 2000-01-11 | 1953-04-09 |
+| Shahab     | Demeyer    | 2000-01-08 | 1954-11-17 |
+| Ennio      | Alblas     | 2000-01-06 | 1960-09-12 |
+| Xuejun     | Benzmuller | 2000-01-04 | 1958-06-10 |
+| Jeong      | Boreale    | 2000-01-03 | 1953-04-27 |
++------------+------------+------------+------------+
 ```
 
 Now our first task, let's create an increasing sequence ID for these employees. Let's try row_number() without any arguments in the OVER clause.
 ```sql
 MariaDB [employees]>
-SELECT row_number() over (), first_name, last_name, hire_date, birth_date
+SELECT
+row_number() over (),  -- This is our window function.
+first_name, last_name, hire_date, birth_date
 FROM employees
-ORDER BY birth_date DESC
+ORDER BY hire_date DESC
 LIMIT 10;
-+----------------------+------------+-----------------+------------+------------+
-| row_number() over () | first_name | last_name       | hire_date  | birth_date |
-+----------------------+------------+-----------------+------------+------------+
-|                50091 | Surveyors  | Bade            | 1988-05-01 | 1965-02-01 |
-|                83278 | Magdalena  | Penn            | 1987-04-27 | 1965-02-01 |
-|                27592 | Berni      | Stranks         | 1985-11-05 | 1965-02-01 |
-|                76422 | Jaewon     | Thummel         | 1985-09-14 | 1965-02-01 |
-|                70850 | Koldo      | Luit            | 1993-11-19 | 1965-02-01 |
-|                64344 | Hiroyasu   | Provine         | 1994-11-25 | 1965-02-01 |
-|                49869 | Zsolt      | Riefers         | 1987-09-25 | 1965-02-01 |
-|                23293 | Adamantios | Vanwelkenhuysen | 1987-12-12 | 1965-02-01 |
-|                56702 | Deniz      | Thibadeau       | 1986-03-11 | 1965-02-01 |
-|                 1157 | Mario      | Cochrane        | 1985-03-30 | 1965-02-01 |
-+----------------------+------------+-----------------+------------+------------+
++----------------------+------------+------------+------------+------------+
+| row_number() over () | first_name | last_name  | hire_date  | birth_date |
++----------------------+------------+------------+------------+------------+
+|               263832 | Bikash     | Covnot     | 2000-01-28 | 1964-06-12 |
+|               228402 | Yucai      | Gerlach    | 2000-01-23 | 1957-05-09 |
+|               299578 | Hideyuki   | Delgrande  | 2000-01-22 | 1954-05-06 |
+|               122990 | Volkmar    | Perko      | 2000-01-13 | 1959-08-07 |
+|                37291 | Ulf        | Flexer     | 2000-01-12 | 1960-09-09 |
+|               223015 | Jaana      | Verspoor   | 2000-01-11 | 1953-04-09 |
+|               127569 | Shahab     | Demeyer    | 2000-01-08 | 1954-11-17 |
+|               105073 | Ennio      | Alblas     | 2000-01-06 | 1960-09-12 |
+|               126658 | Xuejun     | Benzmuller | 2000-01-04 | 1958-06-10 |
+|               224470 | Jeong      | Boreale    | 2000-01-03 | 1953-04-27 |
++----------------------+------------+------------+------------+------------+
 ```
 
-Well... this is not quite what we might expect. But the results are correct. `row_number` always returns an increasing number, however the window function actually executes on the whole table, before the `LIMIT` clause is applied. What we're seeing here is simply the random order that the database executed our query. To get more meaningful results, we need to tell `row_number` what is the order of rows in which its window frame should see the results.
+Well... this is not quite what we might expect. But the results are correct for the query we've given. The reason for the seeming random `row_number` values is: The function always returns a sequence of numbers, 1, 2, 3... and so on. Let's try this on a smaller table first:
+
+#### When are window functions computated?
+
+```sql
+MariaDB [employees]> create table tmp (a char);
+Query OK, 0 rows affected (0.064 sec)
+MariaDB [employees]> insert into tmp (a) values ('d'), ('a'), ('b'), ('c'), ('e');
+Query OK, 5 rows affected (0.015 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+MariaDB [employees]> select row_number() over (), a from tmp;
++----------------------+------+
+| row_number() over () | a    |
++----------------------+------+
+|                    1 | c    |
+|                    2 | e    |
+|                    3 | d    |
+|                    4 | a    |
+|                    5 | b    |
++----------------------+------+
+5 rows in set (0.000 sec)
+```
+Ok, so we see that `row_number()` returns an increasing sequence. Now... let's `order by a`.
+```
+MariaDB [employees]> select row_number() over (), a from tmp order by a;
++----------------------+------+
+| row_number() over () | a    |
++----------------------+------+
+|                    4 | a    |
+|                    5 | b    |
+|                    1 | c    |
+|                    3 | d    |
+|                    2 | e    |
++----------------------+------+
+```
+
+Now you can see that `row_number`'s values depend on the order the functions gets to see the rows. This introduces one **key** point for window functions. They are computed after **all other clauses, WHERE, GROUP BY, HAVING**, except for **ORDER BY** and **LIMIT**.
+
+If we wanted to get numbers starting with 1 for 'a', 2 for 'b', 3 for 'c' and so on, we need tell `row_number` what is the order of rows it should be evaluated on.
+
+This is where `ORDER BY` inside the `OVER` clause comes in. We'll change our function like so:
+`row_number() over (order by a)`
+
+```
+MariaDB [employees]> select row_number() over (order by a), a from tmp order by a;
++--------------------------------+------+
+| row_number() over (order by a) | a    |
++--------------------------------+------+
+|                              1 | a    |
+|                              2 | b    |
+|                              3 | c    |
+|                              4 | d    |
+|                              5 | e    |
++--------------------------------+------+
+5 rows in set (0.000 sec)
+```
+
+Now, that's more like it! Armed with this knowledge, we can fix our employees query too.
+
+```sql
+MariaDB [employees]>
+SELECT
+row_number() over (order by hire_date desc) as row_num,  -- This is our window function.
+first_name, last_name, hire_date, birth_date
+FROM employees
+ORDER BY hire_date DESC
+LIMIT 10;
++---------+------------+------------+------------+------------+
+| row_num | first_name | last_name  | hire_date  | birth_date |
++---------+------------+------------+------------+------------+
+|       1 | Bikash     | Covnot     | 2000-01-28 | 1964-06-12 |
+|       2 | Yucai      | Gerlach    | 2000-01-23 | 1957-05-09 |
+|       3 | Hideyuki   | Delgrande  | 2000-01-22 | 1954-05-06 |
+|       4 | Volkmar    | Perko      | 2000-01-13 | 1959-08-07 |
+|       5 | Ulf        | Flexer     | 2000-01-12 | 1960-09-09 |
+|       6 | Jaana      | Verspoor   | 2000-01-11 | 1953-04-09 |
+|       7 | Shahab     | Demeyer    | 2000-01-08 | 1954-11-17 |
+|       8 | Ennio      | Alblas     | 2000-01-06 | 1960-09-12 |
+|       9 | Xuejun     | Benzmuller | 2000-01-04 | 1958-06-10 |
+|      10 | Jeong      | Boreale    | 2000-01-03 | 1953-04-27 |
++---------+------------+------------+------------+------------+
+```
 
 
 ### Aggregate functions as window functions
