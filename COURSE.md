@@ -214,7 +214,7 @@ The following figure shows the transformation that the optimizer will do:
 
 ![CTE Merging](./img/CTE-merging.png)
 
-This optimization is called CTE Merging
+This optimization is called CTE Merging. In this particular case, the CTE's WHERE clause has been moved to the base SELECT and now instead of referencing `engineers`, the query is directly referencing `employees`. Of course, this is a simple example, but the same algorithm works for much more complicated queries.
 
 The optimizer knows to optimize derived tables by rewriting the query whenever possible. By doing merging, the following optimization steps have a more straightforward view of the query. This allows the JOIN optimizer (the optimization step deciding on the JOIN order of tables) to make a better cost-based decision. In almost all cases, CTE merging provides a performance speedup, hence the optimizer in MariaDB will always attempt to do merging before any other optimization steps. 
 
