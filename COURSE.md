@@ -277,7 +277,13 @@ TODO: video
 This covers all the topics related to Common Table Expressions. Next we will dive into another advanced SQL feature, that works well in conjuction with what we've learned so far.
 
 ## Window Functions
-Window functions are a special kind of SQL function. Window functions can be used in regular SELECT queries and they have the following two particularities:
+Window functions are a special kind of SQL function. The following figure shows the power of window functions: A function that is able to compute results based off of *other* rows in the result set. Window functions help eliminate self-joins from traditional SQL queries. This leads to 100x time optimizations. Queries that would take hours, now can be computed in seconds.
+
+
+
+
+
+Window functions can be used in regular SELECT queries and they have the following two particularities:
 1. They behave as regular SQL functions, they return one result per row.
 2. They behave also like aggregate functions such as `MIN`, `MAX`, `AVG`. The result of window functions is computed over multiple rows. In fact, most aggregate functions can be used as window functions too!
 
