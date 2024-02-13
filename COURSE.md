@@ -616,6 +616,8 @@ Rows implies that the frame borders are defined as an offset from the current ro
 
 The following image shows where each `frame_border` falls in relation to the result set.
 
+![Frame Clause](./img/frame-clause.png)
+
 #### ROWS vs RANGE
 
 ### Where can window functions be used
