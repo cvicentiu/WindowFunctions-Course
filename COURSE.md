@@ -302,7 +302,7 @@ frame_border:
   | UNBOUNDED FOLLOWING
   | CURRENT ROW
   | expression PRECEDING
-  | expression PRECEDING
+  | expression FOLLOWING
 ```
 
 Let's go through the syntax, one step at a time:
@@ -601,8 +601,21 @@ frame_border:
   | UNBOUNDED FOLLOWING
   | CURRENT ROW
   | expression PRECEDING
-  | expression PRECEDING
+  | expression FOLLOWING
 ```
+
+The first thing to note is that the frame clause applies for each partition in the set, as defined by the `PARTITION BY` clause. If there is no `PARTITION BY`, then the frame potentially covers all rows in the result set, depending on the `frame_border` clause. 
+
+For now we'll consider the `ROWS` option:
+
+Rows implies that the frame borders are defined as an offset from the current row.
+* `UNBOUNDED PRECEDING` stands for all rows before the current row belonging to this partition.
+* `UNBOUNDED FOLLOWING` stands for all rows after the current row belonging to this partition.
+* `CURRENT ROW` stands for the current row, *inclusive*.
+* `expression PRECEDING` and `expression FOLLOWING` define a numerical offset, either backwards or forwards from the current row. What matters is the numerical value of the expression. For example: `0 PRECEDING` is the same as `CURRENT ROW`, `1 + 1 PRECEDING` means 2 rows before the current row. Similarly, if the expression value is negative, `-1 PRECEDING` is the same as `1 FOLLOWING`.
+
+The following image shows where each `frame_border` falls in relation to the result set.
+
 #### ROWS vs RANGE
 
 ### Where can window functions be used
