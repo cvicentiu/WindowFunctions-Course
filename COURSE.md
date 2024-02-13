@@ -648,7 +648,7 @@ CREATE TABLE incidents (pk int auto_increment, date int);
 ```
 For simplicity, date will be a number of the form `YYYYMMDD`. Let's add 10 different incidents.
 
-```
+```sql
 insert into incidents (incident_date) values
   (20200101),             -- One incident on 1st of January
   (20200102), (20200102), -- Two incidents on 2nd of January
