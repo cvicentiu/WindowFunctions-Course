@@ -682,9 +682,26 @@ FROM incidents;
 +------+---------------+---------------------+
 ```
 
-While MariaDB does not yet support datetime arithmetic in range type frames (see [MDEV-9727](https://jira.mariadb.org/browse/MDEV-9727))
+While MariaDB does not yet support datetime arithmetic in range type frames (see [MDEV-9727](https://jira.mariadb.org/browse/MDEV-9727)), you can use transformations such as UNIX_TIMESTAMP to convert the frames to numerical values.
+```sql
+SUM(number) OVER (PARTITION BY col1
+                  ORDER BY unix_timestamp(date_col) 
+                  RANGE BETWEEN 2592000 PRECEDING 
+                            AND 2592000 FOLLOWING)
+```
 
 ### Where can window functions be used
+Now that we've covered all functionality related to window functions, we need to talk about limitations. As mentioned previously, Window Functions are computed after all other clauses except for ORDER BY and LIMIT. That means that we can not use any window function in the `WHERE`, `GROUP BY` or `HAVING` clause. In order to filter rows based on window functions we have to make use of a subquery... or, as we've learned previously: CTEs are an excellent alternative to subqueries. You've already seen an example of this in the previous chapter, where we reordered our employee results by gender, then row_num.
 
+Here is another example of how we can get TOP 5 salaries from a company, not including ties:
+```sql
+WITH top_salaries (
+  SELECT salary, dense_rank() over (ORDER by salary)
+  FROM salaries
+)
+SELECT distinct salary
+FROM top_salaries
+WHERE rank <= 5
+```
 
-#### How to combine window functions with CTEs
+This marks the end of our "Advanced SQL Features" course. Now is the time for some exercises to put this theory into practice!
