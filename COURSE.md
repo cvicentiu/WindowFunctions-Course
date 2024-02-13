@@ -622,7 +622,65 @@ The following image shows where each `frame_border` falls in relation to the res
 
 #### RANGE frame border
 
-While numerical row offsets are useful, there are situations when one is not interested in those, but rather defining a window based on the numerical values of rows. This is where the RANGE type frame comes in. 
+While relative row offsets are useful, there are situations when one is not interested in those, but rather defining a window based on the numerical values of rows. This is where the RANGE type frame comes in. 
+The range type frame compares values of the columns in the `ORDER BY` clause to determine the offset. That means that a range type frame is invalid without `ORDER BY` in the `OVER` clause.
+
+The database will report this as an error.
+```sql
+MariaDB [employees]>
+select sum(birth_date) over (RANGE
+                             BETWEEN UNBOUNDED PRECEDING
+                             AND CURRENT ROW)
+from employees limit 10;
+ERROR 4019 (HY000): RANGE-type frame requires ORDER BY clause with single sort key
+```
+
+RANGE is used to define an offset in values.
+
+Let's take the following mock example:
+* We have a table of IT incidents.
+* Each IT incident is assigned to a particular DAY.
+* For each IT incident, we want to know how many IT incidents preceeded it by 3 days.
+
+Here is the table header:
+```sql
+CREATE TABLE incidents (pk int auto_increment, date int);
+```
+For simplicity, date will be a number of the form `YYYYMMDD`. Let's add 10 different incidents.
+
+```
+insert into incidents (incident_date) values
+  (20200101),             -- One incident on 1st of January
+  (20200102), (20200102), -- Two incidents on 2nd of January
+  (20200103),             -- One incident on 3rd of January
+  (20200104), (20200104), -- Two incidents on 4th of January 
+  (20200108), (20200108), -- No incidents between 5th and 7th. 2 on the 8th of January
+  (20200109), (20200109); -- Two incidents on the 9th of January
+```
+
+```sql
+SELECT pk, incident_date,
+       COUNT(*) OVER (ORDER BY incident_date
+                      RANGE BETWEEN 3 PRECEDING  -- 3 Days before the current incident date
+                      AND 1 PRECEDING)           -- 1 Day before the current incident date
+                   AS preceding_incidents
+FROM incidents;
+
++------+---------------+---------------------+
+| pk   | incident_date | preceding_incidents |
++------+---------------+---------------------+
+|    1 |      20200101 |                   0 |  -- No incidents preceeding 1st of January
+|    3 |      20200102 |                   1 |  -- 1 Incident between 1st of January and 1st of January
+|    2 |      20200102 |                   1 |  -- again, 1 incident, this is still 2nd of January
+|    4 |      20200103 |                   3 |  -- 3 Incidents between 1st of January and 2nd of January
+|    5 |      20200104 |                   4 |  -- 4 Incidents between 1st of January and 3rd of January
+|    6 |      20200104 |                   4 |  -- same date, still 4 incidents.
+|    7 |      20200108 |                   0 |  -- Between 5th and 7th of January there were no incidents
+|    8 |      20200108 |                   0 |  -- Same here
+|    9 |      20200109 |                   2 |  -- 2 incidents between 6th and 8th of January
+|   10 |      20200109 |                   2 |  -- Same here
++------+---------------+---------------------+
+```
 
 
 ### Where can window functions be used
