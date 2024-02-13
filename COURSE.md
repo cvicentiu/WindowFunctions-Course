@@ -280,6 +280,7 @@ This covers all the topics related to Common Table Expressions. Next we will div
 Window functions are a an advanced kind of SQL function. The following figure shows the power of window functions:
 
 ![Window Function reference](./img/window-function-reference.png)
+
 A function that is able to compute results based off of *other* rows in the result set.
 They are traditionally used for computing TOP N sort of queries, moving averages or facilitating more complex operations such as fetching related data into the same row without incuring a table join.
 Effectively, window functions help eliminate self-joins from traditional SQL queries. This leads to up-to 100x time optimizations. Queries that would take hours, now can be computed in seconds.
