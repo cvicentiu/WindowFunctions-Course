@@ -608,17 +608,22 @@ The first thing to note is that the frame clause applies for each partition in t
 
 For now we'll consider the `ROWS` option:
 
+#### ROWS frame border
+
 Rows implies that the frame borders are defined as an offset from the current row.
 * `UNBOUNDED PRECEDING` stands for all rows before the current row belonging to this partition.
 * `UNBOUNDED FOLLOWING` stands for all rows after the current row belonging to this partition.
 * `CURRENT ROW` stands for the current row, *inclusive*.
 * `expression PRECEDING` and `expression FOLLOWING` define a numerical offset, either backwards or forwards from the current row. What matters is the numerical value of the expression. For example: `0 PRECEDING` is the same as `CURRENT ROW`, `1 + 1 PRECEDING` means 2 rows before the current row. Similarly, if the expression value is negative, `-1 PRECEDING` is the same as `1 FOLLOWING`.
 
-The following image shows where each `frame_border` falls in relation to the result set.
+The following image shows where each `frame_border` falls in relation to the result set for the `ROWS` type.
 
 ![Frame Clause](./img/frame-clause.png)
 
-#### ROWS vs RANGE
+#### RANGE frame border
+
+While numerical row offsets are useful, there are situations when one is not interested in those, but rather defining a window based on the numerical values of rows. This is where the RANGE type frame comes in. 
+
 
 ### Where can window functions be used
 
