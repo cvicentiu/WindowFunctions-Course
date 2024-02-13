@@ -277,7 +277,7 @@ TODO: video
 This covers all the topics related to Common Table Expressions. Next we will dive into another advanced SQL feature, that works well in conjuction with what we've learned so far.
 
 ## Window Functions
-Window functions are a an advanced kind of SQL function. The following figure shows the power of window functions:
+Window functions are an advanced kind of SQL function. The following figure shows the power of window functions:
 
 ![Window Function reference](./img/window-function-reference.png)
 
