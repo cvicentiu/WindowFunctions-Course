@@ -682,7 +682,9 @@ FROM incidents;
 +------+---------------+---------------------+
 ```
 
+While MariaDB does not yet support datetime arithmetic in range type frames (see [MDEV-9727](https://jira.mariadb.org/browse/MDEV-9727))
 
 ### Where can window functions be used
+
 
 #### How to combine window functions with CTEs
