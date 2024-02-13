@@ -212,7 +212,7 @@ CTEs are very similar to subqueries behind the scenes. A subquery is used to def
 
 The following figure shows the transformation that the optimizer will do:
 
-![CTE Merging](./img/CTE-Merging.png)
+![CTE Merging](./img/CTE-merging.png)
 
 This optimization is called CTE Merging
 
