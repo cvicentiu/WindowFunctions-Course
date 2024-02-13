@@ -404,7 +404,7 @@ MariaDB [employees]> select row_number() over (), a from tmp;
 5 rows in set (0.000 sec)
 ```
 Ok, so we see that `row_number()` returns an increasing sequence. Now... let's `order by a`.
-```
+```sql
 MariaDB [employees]> select row_number() over (), a from tmp order by a;
 +----------------------+------+
 | row_number() over () | a    |
@@ -424,7 +424,7 @@ If we wanted to get numbers starting with 1 for 'a', 2 for 'b', 3 for 'c' and so
 This is where `ORDER BY` inside the `OVER` clause comes in. We'll change our function like so:
 `row_number() over (order by a)`
 
-```
+```sql
 MariaDB [employees]> select row_number() over (order by a), a from tmp order by a;
 +--------------------------------+------+
 | row_number() over (order by a) | a    |
