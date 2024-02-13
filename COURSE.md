@@ -567,16 +567,42 @@ One such use case is for computing a moving average. For example, let's assume w
 
 ```sql
 SELECT
-  time, value
+  time, value as 'Raw data'
 FROM data_points
 ORDER BY time;
 ```
 
 The resulting graph looks something like this:
+![Noisy Sensor Data](./img/sensor-data-noisy.png)
 
+We can smooth out the data by averaging out each value with the three previous ones and the three following ones. This average value needs to be computed for each data point. We can achieve this by using `AVG` as a window function.
+```sql
+SELECT
+  time, value as 'Raw data',
+  avg(value) over (ORDER BY time              -- Order all values by time.
+                   ROWS BETWEEN 3 PRECEDING   -- Using that order, average 7 values together.
+                            AND 3 FOLLOWING)  -- The current value, 3 before it and 3 after it.
+FROM data_points
+ORDER BY time;
+```
+![Noisy Sensor Data](./img/sensor-data-smoothed.png)
+
+Just like we made use of `AVG` as a window function to compute a rolling average, we can make use of `SUM` to compute a rolling total, or a bank statement with the balance before and after each transaction. Generally to make use of aggregates, we need to specify the frame clause to define which rows are part of the aggregation. This is what we'll be discussing next.
 
 ### The frame clause
+Let's recap what the syntax for the frame clause is:
 
+```yaml
+frame_clause:
+  { ROWS | RANGE } {frame_border | BETWEEN frame_border AND frame_border}
+
+frame_border:
+    UNBOUNDED PRECEDING
+  | UNBOUNDED FOLLOWING
+  | CURRENT ROW
+  | expression PRECEDING
+  | expression PRECEDING
+```
 #### ROWS vs RANGE
 
 ### Where can window functions be used
