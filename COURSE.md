@@ -548,12 +548,34 @@ MariaDB [employees]>
 +---------+------------+------------+------------+------------+--------+
 ```
 
-And now we can clearly see how PARTITION BY interacts with the result set. We have two separate sequences, one for each different partition of `M` and `F` gender.
+And now we can clearly see how `PARTITION BY` interacts with the result set. We have two separate sequences, one for each different partition of `M` and `F` gender.
 
+There are more dedicated window functions just like `row_number`. Here are a few:
+* [RANK](https://mariadb.com/kb/en/rank/)
+* [DENSE_RANK](https://mariadb.com/kb/en/dense_rank/)
+* [PERCENT_RANK](https://mariadb.com/kb/en/percent_rank/)
+* [NTILE](https://mariadb.com/kb/en/ntile/)
+* [MEDIAN](https://mariadb.com/kb/en/median/)
+* [LEAD](https://mariadb.com/kb/en/lead/)
+* [LAG](https://mariadb.com/kb/en/lag/)
+* [FIRST_VALUE](https://mariadb.com/kb/en/first_value/)
+* [LAST_VALUE](https://mariadb.com/kb/en/last_value/)
 
 ### Aggregate functions as window functions
+We've had a look at dedicated window functions in the previous chapter. Another use of the `OVER` clause is to make regular aggregate functions like `SUM` and `COUNT` behave like window functions: That is, compute an aggregate over a set of rows related to the current row.
+One such use case is for computing a moving average. For example, let's assume we have a sensor that reads temperature data. The sensor might be very sensitive to small variances and thus produces a rather noisy looking graph, like the following:
 
-### Different frame clauses
+```sql
+SELECT
+  time, value
+FROM data_points
+ORDER BY time;
+```
+
+The resulting graph looks something like this:
+
+
+### The frame clause
 
 #### ROWS vs RANGE
 
